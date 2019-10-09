@@ -3,11 +3,13 @@ package com.example.dniapp.actividades;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.TextView;
 
 import com.example.dniapp.R;
 import com.example.dniapp.beans.Dni;
@@ -18,6 +20,8 @@ import com.example.dniapp.beans.DniZ;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG_APP = "DNI_APP";
+    public static final String DNI_SAVE = "DNI";
+    public static  String value = "dni";
     private RadioButton radioButtonSeleccionado;
 
     @Override
@@ -26,6 +30,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         this.radioButtonSeleccionado = findViewById(R.id.radio1);
+         // Normalmente las preferences se hacen en una clase aparte
+        //recuperamos el fichero y el contenido de la palabra que hemos guardado
+        SharedPreferences sp = getSharedPreferences(DNI_SAVE, MODE_PRIVATE);
+            EditText textView = findViewById(R.id.dni);
+            textView.setText(sp.getString(value, ""));
+
     }
 
 
@@ -64,20 +74,10 @@ public class MainActivity extends AppCompatActivity {
         //4 Lanzo la actividad del resultado pasándole la letra
         Intent intent = new Intent(this, AnimacionLetraActivity.class);
         intent.putExtra("LETRA", letra_dni);
+
+
         startActivity(intent);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -87,6 +87,27 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG_APP, "Tocó RadioButton");
         this.radioButtonSeleccionado = (RadioButton)view;
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+            // cogemos contenido de la caja y lo guardamos en un fichero llamado DNI_SAVE
+            // con clave=value  y valor= codigo
+            SharedPreferences sp = getSharedPreferences(DNI_SAVE, MODE_PRIVATE);
+            Log.d("MIAPP", "el DNI no existe");
+            EditText textView = findViewById(R.id.dni);
+            String codigo = textView.getText().toString();
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString(value, codigo );
+            editor.commit();
+    }
+
+    //TODO Guardar el dni introducido para que aparezca cuando vuelves a entrar
+    // Al entrar de nuevo en la app -> usar shared preferences
+
+
+   // public void onBackPressed
+
 
     /*private char calcularLetra (int numero_dni)
     {
