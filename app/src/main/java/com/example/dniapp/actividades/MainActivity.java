@@ -1,7 +1,11 @@
 package com.example.dniapp.actividades;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,13 +20,16 @@ import com.example.dniapp.beans.Dni;
 import com.example.dniapp.beans.DniX;
 import com.example.dniapp.beans.DniY;
 import com.example.dniapp.beans.DniZ;
+import com.example.dniapp.util.Preferencias;
+import com.google.gson.Gson;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG_APP = "DNI_APP";
-    public static final String DNI_SAVE = "DNI";
-    public static  String value = "dni";
     private RadioButton radioButtonSeleccionado;
+    public static int numDNIs = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +39,24 @@ public class MainActivity extends AppCompatActivity {
         this.radioButtonSeleccionado = findViewById(R.id.radio1);
          // Normalmente las preferences se hacen en una clase aparte
         //recuperamos el fichero y el contenido de la palabra que hemos guardado
-        SharedPreferences sp = getSharedPreferences(DNI_SAVE, MODE_PRIVATE);
+
+
+
+        Dni dni = new Dni(123123123, 'X');
+        // Serializar de objeto DNI a String
+
+        Gson gson = new Gson();
+        String dni_json = gson.toJson(dni);
+        Log.d("MIAPP", "dni en json es"+ dni_json);
+
+        //Deserializar de String a objeto de java
+
+        Dni dni2 = gson.fromJson(dni_json, Dni.class);
+        Log.d("MIAPP" , " Dni java "+ dni2.getNumero() + " " + dni2.getLetra());
+
             EditText textView = findViewById(R.id.dni);
-            textView.setText(sp.getString(value, ""));
+            String string = Preferencias.obtenerDni(this);
+            textView.setText(string);  // asignamos ese valor al EditText del layout
 
     }
 
@@ -60,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void calcularLetraDni(View view) {
         Log.d(TAG_APP, "Ha tocado el botón de calcular");
+
+
+        Gson gson = new Gson();
         //TODO
         //1 obtener el número de dni introducido por el usario
         EditText caja_dni = findViewById(R.id.dni);
@@ -74,9 +99,13 @@ public class MainActivity extends AppCompatActivity {
         //4 Lanzo la actividad del resultado pasándole la letra
         Intent intent = new Intent(this, AnimacionLetraActivity.class);
         intent.putExtra("LETRA", letra_dni);
-
-
         startActivity(intent);
+
+
+        String json_dni = gson.toJson(dni);
+        // borrar contenido de la caja y guardar vacio si ya se ha calculado
+        caja_dni.setText("");
+        Preferencias.guardarDNI(this, numDNIs+1 + json_dni);
     }
 
 
@@ -90,21 +119,85 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        EditText textView = findViewById(R.id.dni);
+        String codigo = textView.getText().toString();
+
+
+        mostrarDialogoSalir();
+        elegirGuardar( codigo);
+        Log.d("MIAPP", "el usuario selecciona slair o no");
+        //super.onBackPressed();
             // cogemos contenido de la caja y lo guardamos en un fichero llamado DNI_SAVE
             // con clave=value  y valor= codigo
-            SharedPreferences sp = getSharedPreferences(DNI_SAVE, MODE_PRIVATE);
             Log.d("MIAPP", "el DNI no existe");
-            EditText textView = findViewById(R.id.dni);
-            String codigo = textView.getText().toString();
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putString(value, codigo );
-            editor.commit();
+
+            Preferencias.guardarDNI(this, codigo);
+
     }
+
 
     //TODO Guardar el dni introducido para que aparezca cuando vuelves a entrar
     // Al entrar de nuevo en la app -> usar shared preferences
 
+
+
+
+    private void mostrarDialogoSalir ()
+    {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("¿Está seguro de que desea salir?");
+
+        builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Log.d(TAG_APP, "Tocó SÍ");
+                dialog.dismiss();
+                MainActivity.this.finish(); // el this se usa para referirse al listener, para poder hacer finish desde aqui en el activity.
+                // Y debemos poner el nombre de la clase que contiene este dialogo
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+                Log.d(TAG_APP, "Tocó NO");
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+    private void elegirGuardar (final String dni) // mejor hacer un metodo para obtener DNI, esta solucion no es muy ortodoxa
+    {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("¿Quieres guardar el dni?");
+
+        builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Log.d(TAG_APP, "Tocó SÍ");
+                dialog.dismiss();
+                Preferencias.guardarDNI(MainActivity.this, dni);
+                MainActivity.this.finish();// el this se usa para referirse al listener, para poder hacer finish desde aqui en el activity.
+                // Y debemos poner el nombre de la clase que contiene este dialogo
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+                Log.d(TAG_APP, "Tocó NO");
+                dialog.cancel();
+                Preferencias.guardarDNI(MainActivity.this, "");
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
    // public void onBackPressed
 
