@@ -42,20 +42,22 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        Dni dni = new Dni(123123123, 'X');
+       // Dni dni = new Dni(123123123, 'X');
         // Serializar de objeto DNI a String
 
-        Gson gson = new Gson();
+        /*Gson gson = new Gson();
         String dni_json = gson.toJson(dni);
         Log.d("MIAPP", "dni en json es"+ dni_json);
 
         //Deserializar de String a objeto de java
-
         Dni dni2 = gson.fromJson(dni_json, Dni.class);
-        Log.d("MIAPP" , " Dni java "+ dni2.getNumero() + " " + dni2.getLetra());
 
+        */
+            numDNIs = Preferencias.obtenerNum(this);
             EditText textView = findViewById(R.id.dni);
-            String string = Preferencias.obtenerDni(this);
+            String string = "";
+
+            string = Preferencias.obtenerDni(this, numDNIs);
             textView.setText(string);  // asignamos ese valor al EditText del layout
 
     }
@@ -102,12 +104,15 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
 
 
+        // poner letra al dni, para que no quede vacia
+        dni.setLetra(letra_dni);
         String json_dni = gson.toJson(dni);
         // borrar contenido de la caja y guardar vacio si ya se ha calculado
         caja_dni.setText("");
-        Preferencias.guardarDNI(this, numDNIs+1 + json_dni);
+        ++numDNIs;
+        Preferencias.guardarNum(this, numDNIs);
+        Preferencias.guardarDNI(this, numDNIs, json_dni);
     }
-
 
 
 
@@ -130,8 +135,8 @@ public class MainActivity extends AppCompatActivity {
             // cogemos contenido de la caja y lo guardamos en un fichero llamado DNI_SAVE
             // con clave=value  y valor= codigo
             Log.d("MIAPP", "el DNI no existe");
-
-            Preferencias.guardarDNI(this, codigo);
+            Preferencias.guardarNum(this, numDNIs);
+            Preferencias.guardarDNI(this,numDNIs, codigo);
 
     }
 
@@ -165,8 +170,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+         AlertDialog dialog = builder.create();
+         dialog.show();
     }
 
 
@@ -181,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int id) {
                 Log.d(TAG_APP, "Tocó SÍ");
                 dialog.dismiss();
-                Preferencias.guardarDNI(MainActivity.this, dni);
+                Preferencias.guardarDNI(MainActivity.this,numDNIs, dni);
                 MainActivity.this.finish();// el this se usa para referirse al listener, para poder hacer finish desde aqui en el activity.
                 // Y debemos poner el nombre de la clase que contiene este dialogo
             }
@@ -191,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                 // User cancelled the dialog
                 Log.d(TAG_APP, "Tocó NO");
                 dialog.cancel();
-                Preferencias.guardarDNI(MainActivity.this, "");
+                Preferencias.guardarDNI(MainActivity.this,numDNIs, "");
             }
         });
 
