@@ -129,14 +129,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         mostrarDialogoSalir();
-        elegirGuardar( codigo);
+        //elegirGuardar( codigo);
         Log.d("MIAPP", "el usuario selecciona slair o no");
         //super.onBackPressed();
             // cogemos contenido de la caja y lo guardamos en un fichero llamado DNI_SAVE
             // con clave=value  y valor= codigo
             Log.d("MIAPP", "el DNI no existe");
-            Preferencias.guardarNum(this, numDNIs);
-            Preferencias.guardarDNI(this,numDNIs, codigo);
+            //Preferencias.guardarNum(this, numDNIs);
+            //Preferencias.guardarDNI(this,numDNIs, codigo);
 
     }
 
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
          dialog.show();
     }
 
-
+/*
     private void elegirGuardar (final String dni) // mejor hacer un metodo para obtener DNI, esta solucion no es muy ortodoxa
     {
 
@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    }
+    }*/
 
    // public void onBackPressed
 
@@ -225,3 +225,4 @@ public class MainActivity extends AppCompatActivity {
         return letra_calculada;
     }*/
 }
+//TODO hacer una actividad nueva en la que se muestre la actividad de DNI.

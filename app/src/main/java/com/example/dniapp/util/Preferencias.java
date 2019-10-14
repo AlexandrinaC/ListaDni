@@ -8,7 +8,9 @@ import android.util.Log;
 import com.example.dniapp.beans.Dni;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -90,17 +92,28 @@ public class Preferencias {
     /**
      *     recorrer el fichero de dnis y mostrar por log.d el contenido del fichero
       */
-    public void mostrarFicheroDni(Context contexto){
+    public static List<Dni> cargarFicheroDni (Context contexto){
+
+        List<Dni> lista_dni = null;
+        String clave_actual = null;
+        String dni_actual = null;
+        Dni objeto_dni = null;
+        Gson gson = null;
+
         SharedPreferences sp = contexto.getSharedPreferences(FICHERO_ULTIMO, Context.MODE_PRIVATE);
         sp.getAll(); // cojo todo el mapa que hay en el fichero
         Map<String, String> mapaDnis = (Map<String, String>)sp.getAll();
         // recorrer el mapaDnis
 
+        //Pasamos los datos a una lista.
+        ArrayList <String> myArrayList = new ArrayList<String>();
+
+
         Set<String> clave = mapaDnis.keySet();
         Iterator<String> iterator = clave.iterator();
+        gson = new Gson();
+        lista_dni = new ArrayList<Dni>();
 
-        String clave_actual = null;
-        String dni_actual = null;
 
 
         // una forma para recorrer el mapa
@@ -108,6 +121,8 @@ public class Preferencias {
             clave_actual = iterator.next();
             dni_actual = mapaDnis.get(clave_actual); // coge el dni que tiene esa clave
             Log.d("MIAPP", dni_actual);
+            objeto_dni = gson.fromJson(dni_actual, Dni.class); // Deserializo ese objeto
+            lista_dni.add(objeto_dni);//Añado a la lista el objeto Dni obtenido
 
         }
       /* otro metodo
@@ -116,6 +131,8 @@ public class Preferencias {
             Log.d("MIAPP", "Coge una clave asi hasta recorrer todo el mapa de claves")
         }
        */
+
+      return lista_dni;
     }
 
 
