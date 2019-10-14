@@ -3,9 +3,14 @@ package com.example.dniapp.util;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.example.dniapp.beans.Dni;
 import com.google.gson.Gson;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Clase para almacenar los preferences del mainActivity
@@ -80,6 +85,42 @@ public class Preferencias {
 
         return numero;
     }
+
+
+    /**
+     *     recorrer el fichero de dnis y mostrar por log.d el contenido del fichero
+      */
+    public void mostrarFicheroDni(Context contexto){
+        SharedPreferences sp = contexto.getSharedPreferences(FICHERO_ULTIMO, Context.MODE_PRIVATE);
+        sp.getAll(); // cojo todo el mapa que hay en el fichero
+        Map<String, String> mapaDnis = (Map<String, String>)sp.getAll();
+        // recorrer el mapaDnis
+
+        Set<String> clave = mapaDnis.keySet();
+        Iterator<String> iterator = clave.iterator();
+
+        String clave_actual = null;
+        String dni_actual = null;
+
+
+        // una forma para recorrer el mapa
+        while(iterator.hasNext()){
+            clave_actual = iterator.next();
+            dni_actual = mapaDnis.get(clave_actual); // coge el dni que tiene esa clave
+            Log.d("MIAPP", dni_actual);
+
+        }
+      /* otro metodo
+        for(String clave : claves){
+            dni_actual = mapaDnis.get(clave);
+            Log.d("MIAPP", "Coge una clave asi hasta recorrer todo el mapa de claves")
+        }
+       */
+    }
+
+
+
+
     // Los metodos estaticos son los que no cambian su funcionamiento dependiendo de la instancia
     //Siempre hace lo mismo a diferencia de getNumero, que devuelve distinto numero dependiendo del dni
     //que recibe.
